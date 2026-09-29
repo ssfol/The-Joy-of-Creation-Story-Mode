@@ -1,0 +1,40 @@
+import sys
+import os
+import subprocess
+import time
+
+def get_base_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    else:
+        return os.path.dirname(os.path.abspath(__file__))
+
+def find_game(base_dir):
+    candidates = [
+        os.path.join(base_dir, "TJoC_SM", "Binaries", "Win64", "TJoC_SM-Win64-Shipping.exe"),
+        os.path.join(base_dir, "The Joy of Creation Story Mode", "TJoC_SM", "Binaries", "Win64", "TJoC_SM-Win64-Shipping.exe"),
+    ]
+    for root, dirs, files in os.walk(base_dir):
+        for f in files:
+            if f.lower() == "tjoc_sm-win64-shipping.exe":
+                candidates.append(os.path.join(root, f))
+    for c in candidates:
+        if os.path.isfile(c):
+            return c
+    return None
+
+def main():
+    base_dir = get_base_dir()
+    game_exe = find_game(base_dir)
+    if not game_exe:
+        print("Игра не найдена рядом с лончером.")
+        time.sleep(3)
+        sys.exit(1)
+
+    game_workdir = os.path.dirname(game_exe)
+    print("Идёт запуск игры...")
+    subprocess.Popen([game_exe], cwd=game_workdir)
+    time.sleep(2)
+
+if __name__ == "__main__":
+    main()
